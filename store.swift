@@ -164,7 +164,7 @@ class Store {
         ownedItem.printReceipt(isRefund: true, amount: ownedItem.price)
     }
     
-    // searching for the title
+    // searching for the item
     func findByTitle(keyword: String) {
         let results = items.filter { $0.title.lowercased().contains(keyword.lowercased()) }
         
@@ -183,12 +183,13 @@ class Store {
     }
 }
 
-// Example usage
+//creating store
 let store = Store(items: [
-    Game(id: "game1", title: "Awesome Game", price: 50.0, publisher: "Game Studios", isMultiplayer: true),
-    Movie(runningTime: 120, id: "movie1", title: "Great Movie", price: 15.0)
+    Game(id: "gtasa", title: "GTA SA", price: 50.0, publisher: "Game Studios", isMultiplayer: true),
+    Movie(runningTime: 120, id: "8mile", title: "8 Mile", price: 15.0)
 ])
 
+//creating customer
 let customer = Customer(balance: 100.0)
 
 func showMenu() {
