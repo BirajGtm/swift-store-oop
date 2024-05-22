@@ -1,4 +1,5 @@
 import Foundation
+//store project g13
 
 // isPurchasable protocol
 protocol IsPurchasable {
