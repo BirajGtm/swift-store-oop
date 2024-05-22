@@ -17,12 +17,12 @@ class Item: IsPurchasable {
         self.price = price
     }
 
-    // implement the info for IsPurchasable
+    // implement the info
     var info: String {
         return "Name: \(title), Price: $\(price)"
     }
 
-    // implement the function to print receipt
+    //print receipt func
     func printReceipt(isRefund: Bool, amount: Double) {
         print("""
         -------------------------
@@ -32,6 +32,7 @@ class Item: IsPurchasable {
         """)
     }
 }
+
 
 class OwnedItem: Item {
     var minutesUsed: Int
@@ -50,6 +51,8 @@ class OwnedItem: Item {
     }
 }
 
+
+//game class
 class Game: Item {
     let publisher: String
     let isMultiplayer: Bool
@@ -65,6 +68,7 @@ class Game: Item {
     }
 }
 
+//movie class
 class Movie: Item {
     let runningTime: Int
     
@@ -148,7 +152,7 @@ class Store {
     // issuing a refund
     func issueRefund(customer: Customer, itemId: String) {
         guard let index = customer.itemsList.firstIndex(where: { $0.id == itemId }) else {
-            print("Refund failed: Item not found in customer\'s list.")
+            print("Refund failed: Item not found in customer's list.")
             return
         }
 
@@ -164,7 +168,7 @@ class Store {
         ownedItem.printReceipt(isRefund: true, amount: ownedItem.price)
     }
     
-    // searching for the item
+    // searching for the item in store
     func findByTitle(keyword: String) {
         let results = items.filter { $0.title.lowercased().contains(keyword.lowercased()) }
         
@@ -183,63 +187,116 @@ class Store {
     }
 }
 
-//creating store
-let store = Store(items: [
-    Game(id: "gtasa", title: "GTA SA", price: 50.0, publisher: "Game Studios", isMultiplayer: true),
-    Movie(runningTime: 120, id: "8mile", title: "8 Mile", price: 15.0)
-])
+//create store 
+func createStore() -> Store {
+    var items = [Item]()
+    print("Creating store and adding items.")
 
-//creating customer
-let customer = Customer(balance: 100.0)
+    while true {
+        print("Enter item type (game/movie) or 'exit' to finish:")
+        guard let itemType = readLine()?.lowercased() else { continue }
 
-func showMenu() {
-    print("""
-    1. Buy Item
-    2. Use Item
-    3. Issue Refund
-    4. Find Item by Title
-    5. Reload Account
-    6. Exit
-    """)
+        if itemType == "exit" { break }
+
+        print("Enter item ID:")
+        guard let id = readLine() else { continue }
+
+        print("Enter item title:")
+        guard let title = readLine() else { continue }
+
+        print("Enter item price:")
+        guard let priceInput = readLine(), let price = Double(priceInput) else { continue }
+
+        if itemType == "game" {
+            print("Enter publisher:")
+            guard let publisher = readLine() else { continue }
+
+            print("Is it multiplayer (true/false)?")
+            guard let isMultiplayerInput = readLine(), let isMultiplayer = Bool(isMultiplayerInput) else { continue }
+
+            let game = Game(id: id, title: title, price: price, publisher: publisher, isMultiplayer: isMultiplayer)
+            items.append(game)
+        } else if itemType == "movie" {
+            print("Enter running time in minutes:")
+            guard let runningTimeInput = readLine(), let runningTime = Int(runningTimeInput) else { continue }
+
+            let movie = Movie(runningTime: runningTime, id: id, title: title, price: price)
+            items.append(movie)
+        }
+    }
+
+    return Store(items: items)
 }
 
-while true {
-    showMenu()
-    if let choice = readLine(), let option = Int(choice) {
-        switch option {
-        case 1:
-            print("Enter item ID to buy:")
-            if let itemId = readLine() {
-                store.buyItem(customer: customer, itemId: itemId)
-            }
-        case 2:
-            print("Enter item ID to use:")
-            if let itemId = readLine() {
-                print("Enter minutes to use:")
-                if let minutes = readLine(), let minutesUsed = Int(minutes) {
-                    customer.useItem(id: itemId, minutesUsed: minutesUsed)
+//creating customer func
+func createCustomer() -> Customer {
+    print("Enter initial balance for the new customer:")
+    if let balanceInput = readLine(), let balance = Double(balanceInput) {
+        let customer = Customer(balance: balance)
+        print("Customer created with balance: \(balance)")
+        return customer
+    } else {
+        print("Invalid input. Creating customer with default balance of 10.")
+        return Customer()
+    }
+}
+
+//main func, starts when program starts
+func main() {
+    let store = createStore()
+    let customer = createCustomer()
+
+    func showMenu() {
+        print("""
+        1. Buy Item
+        2. Use Item
+        3. Issue Refund
+        4. Find Item by Title
+        5. Reload Account
+        6. Exit
+        """)
+    }
+
+    while true {
+        showMenu()
+        if let choice = readLine(), let option = Int(choice) {
+            switch option {
+            case 1:
+                print("Enter item ID to buy:")
+                if let itemId = readLine() {
+                    store.buyItem(customer: customer, itemId: itemId)
                 }
+            case 2:
+                print("Enter item ID to use:")
+                if let itemId = readLine() {
+                    print("Enter minutes to use:")
+                    if let minutes = readLine(), let minutesUsed = Int(minutes) {
+                        customer.useItem(id: itemId, minutesUsed: minutesUsed)
+                    }
+                }
+            case 3:
+                print("Enter item ID to refund:")
+                if let itemId = readLine() {
+                    store.issueRefund(customer: customer, itemId: itemId)
+                }
+            case 4:
+                print("Enter keyword to search by title:")
+                if let keyword = readLine() {
+                    store.findByTitle(keyword: keyword)
+                }
+            case 5:
+                print("Enter amount to reload:")
+                if let amount = readLine(), let reloadAmount = Double(amount) {
+                    customer.reloadAccount(amount: reloadAmount)
+                }
+            case 6:
+                print("Exiting...")
+                exit(0)
+            default:
+                print("Invalid option. Please try again.")
             }
-        case 3:
-            print("Enter item ID to refund:")
-            if let itemId = readLine() {
-                store.issueRefund(customer: customer, itemId: itemId)
-            }
-        case 4:
-            print("Enter keyword to search by title:")
-            if let keyword = readLine() {
-                store.findByTitle(keyword: keyword)
-            }
-        case 5:
-            print("Enter amount to reload:")
-            if let amount = readLine(), let reloadAmount = Double(amount) {
-                customer.reloadAccount(amount: reloadAmount)
-            }
-        case 6:
-            print("Exiting...")
-            exit(0)
-        default:
-            print("Invalid option. Please try again.")
         }
     }
 }
+
+main()
