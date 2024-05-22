@@ -121,7 +121,7 @@ class Store {
             return
         }
 
-        // check if the item is already owned by the customer
+        // check if the item is already owned by customer
         guard !customer.itemsList.contains(where: { $0.id == itemId }) else {
             print("Purchase failed: Customer already owns this item.")
             return
@@ -148,7 +148,7 @@ class Store {
     // issuing a refund
     func issueRefund(customer: Customer, itemId: String) {
         guard let index = customer.itemsList.firstIndex(where: { $0.id == itemId }) else {
-            print("Refund failed: Item not found in customer’s list.")
+            print("Refund failed: Item not found in customer\'s list.")
             return
         }
 
@@ -184,68 +184,61 @@ class Store {
 }
 
 // Example usage
-
-print("Creating Store with game1 and movie1:")
 let store = Store(items: [
     Game(id: "game1", title: "Awesome Game", price: 50.0, publisher: "Game Studios", isMultiplayer: true),
     Movie(runningTime: 120, id: "movie1", title: "Great Movie", price: 15.0)
 ])
-print("===============")
 
-print("Creating customer with balance 80")
-let customer = Customer(balance: 80.0)
-print("===============")
+let customer = Customer(balance: 100.0)
 
-print("Buying game1")
-store.buyItem(customer: customer, itemId: "game1")
-print("===============")
-
-print("Buying movie1")
-store.buyItem(customer: customer, itemId: "movie1")
-print("===============")
-
-
-print("using game1 for 10 mins")
-customer.useItem(id: "game1", minutesUsed: 10)
-print("===============")
-
-
-print("Refunding for movie1")
-store.issueRefund(customer: customer, itemId: "movie1")
-print("===============")
-
-print("Finding game title Game")
-store.findByTitle(keyword: "Game")
-print("===============")
-
-print("Using game1 for 100 mins")
-customer.useItem(id: "game1", minutesUsed: 100)
-print("===============")
-
-print("Trying to refund game1")
-store.issueRefund(customer: customer, itemId: "game1")
-print("===============")
-
-
-print("Byuing game1 again: ")
-store.buyItem(customer: customer, itemId: "game1")
-print("===============")
-
-print("Customer Balance: ")
-print(customer.balance)
-print("===============")
-
-customer.reloadAccount(amount: 50.0)
-print("===============")
-
-store.buyItem(customer: customer, itemId: "movie1")
-print("===============")
-
-print("Item list: ")
-for item in customer.itemsList {
-  print(item.title)
+func showMenu() {
+    print("""
+    1. Buy Item
+    2. Use Item
+    3. Issue Refund
+    4. Find Item by Title
+    5. Reload Account
+    6. Exit
+    """)
 }
-print("===============")
-print("The End!")
 
-
+while true {
+    showMenu()
+    if let choice = readLine(), let option = Int(choice) {
+        switch option {
+        case 1:
+            print("Enter item ID to buy:")
+            if let itemId = readLine() {
+                store.buyItem(customer: customer, itemId: itemId)
+            }
+        case 2:
+            print("Enter item ID to use:")
+            if let itemId = readLine() {
+                print("Enter minutes to use:")
+                if let minutes = readLine(), let minutesUsed = Int(minutes) {
+                    customer.useItem(id: itemId, minutesUsed: minutesUsed)
+                }
+            }
+        case 3:
+            print("Enter item ID to refund:")
+            if let itemId = readLine() {
+                store.issueRefund(customer: customer, itemId: itemId)
+            }
+        case 4:
+            print("Enter keyword to search by title:")
+            if let keyword = readLine() {
+                store.findByTitle(keyword: keyword)
+            }
+        case 5:
+            print("Enter amount to reload:")
+            if let amount = readLine(), let reloadAmount = Double(amount) {
+                customer.reloadAccount(amount: reloadAmount)
+            }
+        case 6:
+            print("Exiting...")
+            exit(0)
+        default:
+            print("Invalid option. Please try again.")
+        }
+    }
+}
